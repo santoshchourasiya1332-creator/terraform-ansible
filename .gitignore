@@ -4,3 +4,9 @@
 *.pem
 terraform.tfvars
 crash.log
+
+# Terraform plan file
+tfplan
+
+# Old backup files
+*.old
