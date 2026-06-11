@@ -6,13 +6,13 @@ variable "resource_group_name" {
 
 variable "location" {
   type        = string
-  default     = "East Asia"
+  default     = "Central India"
   description = "Azure region for resources"
 }
 
 variable "vm_count" {
   type        = number
-  default     = 2
+  default     = 1
   description = "Number of Ubuntu VMs to create"
 }
 
