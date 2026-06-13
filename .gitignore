@@ -9,4 +9,9 @@ crash.log
 tfplan
 
 # Old backup files
+*.oldansible_id_rsa
+ansible_id_rsa.pub
+
+ansible_id_rsa
+ansible_id_rsa.pub
 *.old

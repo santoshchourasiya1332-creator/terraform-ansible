@@ -1,8 +1,3 @@
-resource "tls_private_key" "ssh_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4000
-}
-
 resource "azurerm_public_ip" "pip" {
   count               = var.vm_count
   name                = "ansible-vm-pip-${count.index + 1}"
@@ -47,7 +42,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   admin_ssh_key {
     username   = var.admin_username
-    public_key = tls_private_key.ssh_key.public_key_openssh
+    public_key = file("${path.root}/ansible_id_rsa.pub")
   }
 
   os_disk {
