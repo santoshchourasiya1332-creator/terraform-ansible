@@ -5,12 +5,16 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+  - script: |
+      curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+      sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+      sudo apt-get update
+      sudo apt-get install -y terraform
+      terraform version
+    displayName: 'Install Terraform'
 
-  - task: TerraformInstaller@1
-    inputs:
-      terraformVersion: latest
-
-  - script: terraform fmt -check -recursive
+  - script: |
+      terraform fmt -check -recursive
     displayName: 'Terraform Format Check'
 
   - task: AzureCLI@2
