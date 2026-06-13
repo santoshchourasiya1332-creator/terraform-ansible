@@ -1,42 +1,41 @@
 trigger:
-
-* main
+  - main
 
 pool:
-vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 steps:
 
-* task: TerraformInstaller@1
-  inputs:
-  terraformVersion: latest
+  - task: TerraformInstaller@1
+    inputs:
+      terraformVersion: latest
 
-* script: terraform fmt -check -recursive
-  displayName: Terraform Format Check
+  - script: terraform fmt -check -recursive
+    displayName: 'Terraform Format Check'
 
-* task: AzureCLI@2
-  displayName: Terraform Init
-  inputs:
-  azureSubscription: 'azure-sp-terraform'
-  scriptType: bash
-  scriptLocation: inlineScript
-  inlineScript: |
-  terraform init
+  - task: AzureCLI@2
+    displayName: 'Terraform Init'
+    inputs:
+      azureSubscription: 'azure-sp-terraform'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        terraform init
 
-* task: AzureCLI@2
-  displayName: Terraform Validate
-  inputs:
-  azureSubscription: 'azure-sp-terraform'
-  scriptType: bash
-  scriptLocation: inlineScript
-  inlineScript: |
-  terraform validate
+  - task: AzureCLI@2
+    displayName: 'Terraform Validate'
+    inputs:
+      azureSubscription: 'azure-sp-terraform'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        terraform validate
 
-* task: AzureCLI@2
-  displayName: Terraform Plan
-  inputs:
-  azureSubscription: 'azure-sp-terraform'
-  scriptType: bash
-  scriptLocation: inlineScript
-  inlineScript: |
-  terraform plan -out=tfplan
+  - task: AzureCLI@2
+    displayName: 'Terraform Plan'
+    inputs:
+      azureSubscription: 'azure-sp-terraform'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        terraform plan -out=tfplan
