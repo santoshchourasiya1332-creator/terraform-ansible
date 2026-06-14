@@ -42,4 +42,6 @@ steps:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        terraform plan -out=tfplan
+        terraform plan \
+          -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
+          -out=tfplan
