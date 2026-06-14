@@ -21,3 +21,8 @@ variable "admin_username" {
   default     = "santosh_devops"
   description = "Administrator username for all VMs"
 }
+
+variable "ssh_public_key" {
+  type        = string
+  description = "SSH public key for VM login"
+}

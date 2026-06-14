@@ -15,3 +15,20 @@ ansible_id_rsa.pub
 ansible_id_rsa
 ansible_id_rsa.pub
 *.old
+
+# SSH Keys
+
+ansible_id_rsa
+ansible_id_rsa.pub
+ansible_id_rsa.pem
+
+# Terraform
+
+.terraform/
+*.tfstate
+*.tfstate.*
+tfplan
+
+# Backup files
+
+*.old
