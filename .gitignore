@@ -32,3 +32,4 @@ tfplan
 # Backup files
 
 *.old
+*.bak
