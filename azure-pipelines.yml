@@ -1,8 +1,14 @@
 trigger:
-  - main
+  branches:
+    include:
+      - feature/*
+      - main
 
 pool:
   vmImage: 'ubuntu-latest'
+
+variables:
+  TF_WORKING_DIR: 'environments/dev'
 
 steps:
   - script: |
@@ -23,6 +29,7 @@ steps:
       azureSubscription: 'azure-sp-terraform'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
+      workingDirectory: '$(TF_WORKING_DIR)'
       inlineScript: |
         terraform init
 
@@ -32,6 +39,7 @@ steps:
       azureSubscription: 'azure-sp-terraform'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
+      workingDirectory: '$(TF_WORKING_DIR)'
       inlineScript: |
         terraform validate
 
@@ -41,6 +49,7 @@ steps:
       azureSubscription: 'azure-sp-terraform'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
+      workingDirectory: '$(TF_WORKING_DIR)'
       inlineScript: |
         terraform plan \
           -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
