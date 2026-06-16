@@ -1,5 +1,5 @@
 trigger:
-  - none
+   none
 
 parameters:
   - name: environment
