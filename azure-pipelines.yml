@@ -3,7 +3,7 @@ trigger:
 
 parameters:
   - name: environment
-    displayName: 'Terraform Environment'
+    displayName: Terraform Environment
     type: string
     default: dev
     values:
@@ -11,54 +11,114 @@ parameters:
       - prod
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest
 
 variables:
-  TF_WORKING_DIR: 'environments/${{ parameters.environment }}'
+  TF_WORKING_DIR: environments/${{ parameters.environment }}
 
-steps:
-  - checkout: self
+stages:
 
-  - script: |
-      curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-      sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-      sudo apt-get update
-      sudo apt-get install -y terraform
-      terraform version
-    displayName: 'Install Terraform'
+- stage: Validate
+  displayName: Terraform Validate
 
-  - script: |
-      terraform fmt -check -recursive
-    displayName: 'Terraform Format Check'
+  jobs:
+  - job: Validate
 
-  - task: AzureCLI@2
-    displayName: 'Terraform Init'
-    inputs:
-      azureSubscription: 'azure-sp-terraform'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        cd $(TF_WORKING_DIR)
-        terraform init
+    steps:
 
-  - task: AzureCLI@2
-    displayName: 'Terraform Validate'
-    inputs:
-      azureSubscription: 'azure-sp-terraform'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        cd $(TF_WORKING_DIR)
-        terraform validate
+    - checkout: self
 
-  - task: AzureCLI@2
-    displayName: 'Terraform Plan'
-    inputs:
-      azureSubscription: 'azure-sp-terraform'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        cd $(TF_WORKING_DIR)
-        terraform plan \
-          -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
-          -out=tfplan
+    - script: |
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+        sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+        sudo apt-get update
+        sudo apt-get install -y terraform
+        terraform version
+      displayName: Install Terraform
+
+    - script: |
+        terraform fmt -check -recursive
+      displayName: Terraform Format Check
+
+    - task: AzureCLI@2
+      displayName: Terraform Init
+      inputs:
+        azureSubscription: azure-sp-terraform
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          cd $(TF_WORKING_DIR)
+          terraform init
+
+    - task: AzureCLI@2
+      displayName: Terraform Validate
+      inputs:
+        azureSubscription: azure-sp-terraform
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          cd $(TF_WORKING_DIR)
+          terraform validate
+
+- stage: Plan
+  displayName: Terraform Plan
+
+  dependsOn: Validate
+
+  jobs:
+  - job: Plan
+
+    steps:
+
+    - checkout: self
+
+    - task: AzureCLI@2
+      displayName: Terraform Plan
+      inputs:
+        azureSubscription: azure-sp-terraform
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          cd $(TF_WORKING_DIR)
+
+          terraform init
+
+          terraform plan \
+            -var="ssh_public_key=$(SSH_PUBLIC_KEY)" \
+            -out=tfplan
+
+- stage: Apply
+
+  displayName: Terraform Apply
+
+  dependsOn: Plan
+
+  jobs:
+
+  - deployment: Apply
+
+    environment: prod
+
+    strategy:
+      runOnce:
+
+        deploy:
+
+          steps:
+
+          - checkout: self
+
+          - task: AzureCLI@2
+            displayName: Terraform Apply
+            inputs:
+              azureSubscription: azure-sp-terraform
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                cd $(TF_WORKING_DIR)
+
+                terraform init
+
+                terraform apply \
+                  -auto-approve \
+                  -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
