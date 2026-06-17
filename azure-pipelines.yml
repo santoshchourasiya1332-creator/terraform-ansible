@@ -14,7 +14,10 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  TF_WORKING_DIR: 'environments/${{ parameters.environment }}'
+- group: terraform-prod-vars
+
+- name: TF_WORKING_DIR
+  value: 'environments/${{ parameters.environment }}'
 
 stages:
   - stage: Validate
@@ -103,7 +106,6 @@ stages:
                     inlineScript: |
                       cd $(TF_WORKING_DIR)
                       terraform init
-                      terraform import module.resource_group.azurerm_resource_group.this /subscriptions/68985c92-8674-44d4-a443-5945071e92a7/resourceGroups/ansible-tf-rg || true
                       terraform apply \
                         -auto-approve \
                         -var="ssh_public_key=$(SSH_PUBLIC_KEY)"
